@@ -1,0 +1,29 @@
+# Gradle
+.gradle/
+build/
+app/build/
+
+# Python
+server/__pycache__/
+*.pyc
+*.pyo
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local config (SDK path may differ across machines)
+local.properties
+
+# APK build products (re-generated)
+*.apk
+!网管家交换机信息查询.apk
+
+# SSH temp files
+.ssh_known_hosts

@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <!-- 蓝色标题横条（fitsSystemWindows 使蓝色延伸到系统状态栏） -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@color/primary"
+        android:fitsSystemWindows="true">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:gravity="center"
+            android:text="@string/app_name"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- 内容容器（两侧留白收窄） -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp">
+
+    <!-- 顶部状态区 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#EFEFEF"
+        android:padding="8dp">
+
+        <TextView
+            android:id="@+id/tvProjectName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#212121"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/disconnected"
+            android:textStyle="bold"
+            android:textSize="13sp"
+            android:layout_marginTop="2dp" />
+
+        <TextView
+            android:id="@+id/tvCurrentDevice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#212121"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/tvModel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#212121"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+    <!-- 核心交换机信息区（仅二级菜单显示） -->
+    <LinearLayout
+        android:id="@+id/coreCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#E3F2FD"
+        android:padding="8dp"
+        android:layout_marginTop="6dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="核心交换机信息（点击进入查询）"
+            android:textColor="#0D47A1"
+            android:textStyle="bold"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/tvCoreModel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#212121"
+            android:textSize="12sp"
+            android:layout_marginTop="4dp" />
+
+        <TextView
+            android:id="@+id/tvCoreVersion"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#212121"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/tvCorePatch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:textColor="#212121"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/tvCoreUptime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#212121"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <!-- 检测交换机在线状态按钮（仅二级菜单显示） -->
+    <Button
+        android:id="@+id/btnBackToProjects"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:text="@string/check_switch_status" />
+
+    <!-- 结果/列表区（上面） -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="6dp">
+
+        <!-- 设备列表（二级菜单内容） -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvDevices"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#FAFAFA" />
+
+        <!-- 查询结果精简信息区（三级菜单内容） -->
+        <ScrollView
+            android:id="@+id/resultScroll"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#FFFFFF"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/tvResult"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textIsSelectable="true"
+                android:textColor="#212121"
+                android:textSize="13sp"
+                android:padding="4dp" />
+        </ScrollView>
+    </FrameLayout>
+
+    <!-- 实时命令行区（默认显示，可手动收起） -->
+    <LinearLayout
+        android:id="@+id/terminalPanel"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:orientation="vertical"
+        android:layout_marginTop="6dp">
+
+        <!-- 上沿分界线 -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#C8C8C8" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingTop="2dp"
+            android:paddingBottom="2dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/raw_terminal"
+                android:textColor="#212121"
+                android:textStyle="bold"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/btnClearTerminal"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
+                android:text="@string/clear"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <ScrollView
+            android:id="@+id/terminalScroll"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="#000000">
+
+            <TextView
+                android:id="@+id/tvTerminal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="#00FF00"
+                android:textSize="11sp"
+                android:typeface="monospace"
+                android:textIsSelectable="true" />
+        </ScrollView>
+    </LinearLayout>
+
+    <!-- 功能按钮区（最下面，仅三级菜单显示） -->
+    <LinearLayout
+        android:id="@+id/functionButtons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="6dp"
+        android:visibility="gone" />
+
+    <!-- 底部操作按钮 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="6dp">
+
+        <Button
+            android:id="@+id/btnBack"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/back" />
+
+        <Button
+            android:id="@+id/btnToggleTerminal"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:text="收起命令行" />
+    </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,25 @@
+[Unit]
+Description=Switch Auth Service (交换机查询APP授权服务)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=appsvc
+Group=appsvc
+WorkingDirectory=/opt/switch-auth
+ExecStart=/usr/bin/python3.11 /opt/switch-auth/app.py --config /opt/switch-auth/config.json
+Restart=always
+RestartSec=3
+StandardOutput=journal
+StandardError=journal
+
+# 基本加固：只允许写自己的数据目录
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+ReadWritePaths=/opt/switch-auth/data /opt/switch-auth/backup
+
+[Install]
+WantedBy=multi-user.target

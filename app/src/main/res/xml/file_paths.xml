@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- APP 更新包下载目录（外部私有目录：Android/data/<包名>/files/update） -->
+    <external-files-path name="update_external" path="update/" />
+    <!-- 外部存储不可用时回退到内部私有目录 -->
+    <files-path name="update_internal" path="update/" />
+</paths>
