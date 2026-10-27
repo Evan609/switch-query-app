@@ -118,6 +118,7 @@ systemctl status switch-auth
 - ✅ `--More--` 与提示符同行时检测已修复
 - ✅ 服务端 NOT_FOUND 容错已加（末尾斜杠、favicon、路径回显）
 - ⏳ 等待用户 FTP 上传 app.py 到服务器
+- ✅ 服务端已加「登录设备」记录（device_log 表 + 管理页卡片），APP 无需改动，待部署
 - ⚠️ 从 v1.7.8 及更早（debug 签名）升级的用户必须先卸载旧版；v1.7.9 起可直接覆盖升级
 
 ## 十、用户偏好（重要！）

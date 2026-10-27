@@ -210,6 +210,17 @@ CREATE TABLE IF NOT EXISTS tokens (
     client       TEXT DEFAULT '',
     client_version TEXT DEFAULT ''
 );
+CREATE TABLE IF NOT EXISTS device_log (
+    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id        INTEGER NOT NULL,
+    client         TEXT DEFAULT '',
+    client_version TEXT DEFAULT '',
+    ip             TEXT DEFAULT '',
+    first_seen     INTEGER NOT NULL,
+    last_seen      INTEGER NOT NULL,
+    login_count    INTEGER NOT NULL DEFAULT 1,
+    UNIQUE(user_id, client, ip)
+);
 CREATE TABLE IF NOT EXISTS announcements (
     id             INTEGER PRIMARY KEY AUTOINCREMENT,
     title          TEXT NOT NULL,
@@ -238,6 +249,7 @@ CREATE TABLE IF NOT EXISTS app_releases (
     created_at   INTEGER NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_audit_ts ON audit(ts);
+CREATE INDEX IF NOT EXISTS idx_device_user ON device_log(user_id, last_seen);
 """
 
 
@@ -370,6 +382,7 @@ def user_delete(uid):
     conn = db_connect()
     try:
         conn.execute("DELETE FROM tokens WHERE user_id=?", (uid,))
+        conn.execute("DELETE FROM device_log WHERE user_id=?", (uid,))
         conn.execute("DELETE FROM announcements WHERE target_user_id=?", (uid,))
         conn.execute("DELETE FROM users WHERE id=?", (uid,))
         conn.commit()
@@ -656,6 +669,38 @@ def token_issue(uid, client="", client_version=""):
     finally:
         conn.close()
     return token, expires
+
+
+def device_record(uid, client="", client_version="", ip=""):
+    """记录账号登录过的设备（同一账号+设备+IP 聚合为一行，累加次数）。
+
+    与 tokens 表不同，本表不做过期清理，用于长期查看"某账号登录过哪些设备"。
+    """
+    client = (client or "")[:120]
+    ip = (ip or "")[:64]
+    ver = norm_version(client_version)
+    ts = now_ts()
+    conn = db_connect()
+    try:
+        row = conn.execute(
+            "SELECT id FROM device_log WHERE user_id=? AND client=? AND ip=?",
+            (uid, client, ip),
+        ).fetchone()
+        if row:
+            conn.execute(
+                "UPDATE device_log SET last_seen=?, client_version=?,"
+                " login_count=login_count+1 WHERE id=?",
+                (ts, ver, int(row["id"])),
+            )
+        else:
+            conn.execute(
+                "INSERT INTO device_log(user_id,client,client_version,ip,"
+                "first_seen,last_seen,login_count) VALUES(?,?,?,?,?,?,1)",
+                (uid, client, ver, ip, ts, ts),
+            )
+        conn.commit()
+    finally:
+        conn.close()
 
 
 def token_revoke(token):
@@ -1130,6 +1175,7 @@ class Handler(BaseHTTPRequestHandler):
 
         rate_clear(ip)
         token, expires = token_issue(int(u["id"]), client, app_version)
+        device_record(int(u["id"]), client, app_version, ip)
         audit("login_ok", username, ip, client + " v" + app_version)
         self._json({
             "ok": True,
@@ -1423,6 +1469,10 @@ class Handler(BaseHTTPRequestHandler):
                 " FROM users u ORDER BY u.id", (now_ts(),)
             ).fetchall()
             logs = conn.execute("SELECT * FROM audit ORDER BY id DESC LIMIT 25").fetchall()
+            devs = conn.execute(
+                "SELECT d.*, u.username FROM device_log d"
+                " LEFT JOIN users u ON u.id=d.user_id"
+                " ORDER BY d.last_seen DESC LIMIT 200").fetchall()
             anns = conn.execute("SELECT * FROM announcements ORDER BY id DESC LIMIT 30").fetchall()
         finally:
             conn.close()
@@ -1506,6 +1556,30 @@ class Handler(BaseHTTPRequestHandler):
                 ver=ver_txt, live=u["live_tokens"], last=last,
                 created=time.strftime("%Y-%m-%d", time.localtime(u["created_at"])),
                 csrf=csrf, opaction=op_action, opcls=op_cls, oplabel=op_label))
+
+        # 登录设备行
+        dev_rows = []
+        for d in devs:
+            raw = d["client"] or ""
+            name = raw[len("android/"):] if raw.startswith("android/") else raw
+            dev_rows.append("""
+<tr>
+  <td class="mono">{user}</td>
+  <td>{client}</td>
+  <td class="mono">{ver}</td>
+  <td class="mono">{ip}</td>
+  <td>{first}</td>
+  <td>{last}</td>
+  <td>{cnt}</td>
+</tr>""".format(
+                user=escape(d["username"] or "已删除账号"),
+                client=escape(name or "未知设备"),
+                ver=escape(norm_version(d["client_version"])) if d["client_version"]
+                else '<span style="color:#7b8a99">未上报</span>',
+                ip=escape(d["ip"] or "-"),
+                first=time.strftime("%Y-%m-%d %H:%M", time.localtime(d["first_seen"])),
+                last=time.strftime("%Y-%m-%d %H:%M", time.localtime(d["last_seen"])),
+                cnt=d["login_count"]))
 
         # 公告行
         ann_rows = []
@@ -1675,6 +1749,8 @@ class Handler(BaseHTTPRequestHandler):
         html = html.replace("@@PENDING_ROWS@@", "".join(pending_rows))
         html = html.replace("@@PENDING_CARD_CLASS@@", "" if pending else "hide")
         html = html.replace("@@USER_ROWS@@", "".join(rows) or '<tr><td colspan="7" class="empty">暂无用户</td></tr>')
+        html = html.replace("@@DEVICE_ROWS@@", "".join(dev_rows)
+                            or '<tr><td colspan="7" class="empty">暂无登录设备记录</td></tr>')
         html = html.replace("@@TARGET_OPTIONS@@", "".join(target_opts))
         html = html.replace("@@ANN_ROWS@@", "".join(ann_rows) or '<tr><td colspan="7" class="empty">暂无公告</td></tr>')
         html = html.replace("@@ACTIVE_ANN_ROWS@@", "".join(active_rows)
@@ -2060,6 +2136,15 @@ select { padding:6px 8px; border:1px solid #d5dce3; border-radius:4px; font-size
     @@USER_ROWS@@
   </table>
   <div class="sub" style="margin:0">「当前版本」为 APP 最近一次登录或校验时上报的版本，升级 APP 后无需重新登录，下次校验会自动更新。显示「未上报」说明该账号使用的是不上报版本号的旧版 APP。</div>
+</div>
+
+<div class="card">
+  <h2>登录设备</h2>
+  <table>
+    <tr><th>账号</th><th>设备</th><th>APP 版本</th><th>登录 IP</th><th>首次登录</th><th>最近登录</th><th>次数</th></tr>
+    @@DEVICE_ROWS@@
+  </table>
+  <div class="sub" style="margin:0">记录每个账号登录过的设备型号、APP 版本与来源 IP，同一账号 + 设备 + IP 聚合为一行并累计登录次数。仅记录 APP 登录行为，不随令牌过期而清理。设备型号由 APP 上报（旧版本可能显示「未知设备」）。</div>
 </div>
 
 <div class="card">
