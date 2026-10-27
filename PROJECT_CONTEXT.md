@@ -110,14 +110,15 @@ systemctl status switch-auth
 | `server/app.py` | 服务端全部逻辑（HTTP + SQLite） | ⚠️ 部署后需重启 |
 | `server/config.example.json` | 服务端配置模板 | |
 
-## 九、当前状态（v1.7.9）
+## 九、当前状态（v1.8.0）
 
-- ✅ APP 当前发布版：v1.7.9（versionCode 35）— **release keystore 签名**（不再是 debug 签名）
+- ✅ APP 当前发布版：v1.8.0（versionCode 36）— release keystore 签名
+- ✅ v1.8.0 相对 v1.7.9 仅版本号变更，代码完全一致
 - ✅ 锐捷/华为 VLAN 多行续行解析已修复
 - ✅ `--More--` 与提示符同行时检测已修复
 - ✅ 服务端 NOT_FOUND 容错已加（末尾斜杠、favicon、路径回显）
 - ⏳ 等待用户 FTP 上传 app.py 到服务器
-- ⚠️ 签名从 debug 变为 release：**老用户必须先卸载旧版再装新版**（签名不同无法覆盖安装）
+- ⚠️ 从 v1.7.8 及更早（debug 签名）升级的用户必须先卸载旧版；v1.7.9 起可直接覆盖升级
 
 ## 十、用户偏好（重要！）
 
