@@ -21,6 +21,11 @@ Thumbs.db
 # Local config (SDK path may differ across machines)
 local.properties
 
+# 签名密钥（严禁上传到任何仓库）
+*.jks
+*.keystore
+keystore.properties
+
 # APK build products (re-generated)
 *.apk
 !网管家交换机信息查询.apk

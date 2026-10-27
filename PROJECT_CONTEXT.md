@@ -34,21 +34,36 @@
 ## 四、构建与发布流程
 
 ```powershell
-# 1. 编译（自动用 gradle wrapper）
+# 1. 编译（release 签名版）
 $env:JAVA_HOME = "C:\Program Files\Java\jdk-17.0.2"
 $env:Path = "$env:JAVA_HOME\bin;$env:Path"
-.\gradlew assembleDebug
+.\gradlew.bat assembleRelease
 
 # 2. 复制 APK
-Copy-Item app\build\outputs\apk\debug\app-debug.apk 网管家交换机信息查询.apk -Force
+Copy-Item app\build\outputs\apk\release\app-release.apk 网管家交换机信息查询.apk -Force
 
 # 3. 算 SHA256（用于服务端发布时填入）
 (Get-FileHash "网管家交换机信息查询.apk" -Algorithm SHA256).Hash
 
-# 4. 更新版本号：app/build.gradle 里 versionCode 和 versionName 各 +1
-# 5. 更新本文件和 开发者更新文档.md
-# 6. git add → commit → push
+# 4. 验证签名（sdk 路径见 local.properties）
+& "F:\Android\SDK\build-tools\36.0.0\apksigner.bat" verify --print-certs "网管家交换机信息查询.apk"
+
+# 5. 更新版本号：app/build.gradle 里 versionCode 和 versionName 各 +1
+# 6. 更新本文件和 开发者更新文档.md
+# 7. git add → commit → push
 ```
+
+### 签名密钥（严禁入库）
+
+| 文件 | 位置 | 是否入库 |
+|---|---|---|
+| `keystore/switchquery-release.jks` | 项目内 | ❌ `.gitignore` 已排除 `*.jks`/`*.keystore` |
+| `keystore.properties` | 项目根目录 | ❌ `.gitignore` 已排除 |
+
+- alias：`switchquery`，RSA 2048，有效期 10950 天（约 30 年）
+- 证书：`CN=Evan609, OU=SwitchQuery, O=WGJ, L=Beijing, ST=Beijing, C=CN`
+- **换电脑/新克隆仓库必须单独拷贝这两个文件，否则无法出签名包**
+- **务必备份到离线安全位置**：`.jks` 丢失后无法再发布同签名的更新（只能换包名重装）
 
 ## 五、服务端部署（服务器本地执行）
 
@@ -95,13 +110,14 @@ systemctl status switch-auth
 | `server/app.py` | 服务端全部逻辑（HTTP + SQLite） | ⚠️ 部署后需重启 |
 | `server/config.example.json` | 服务端配置模板 | |
 
-## 九、当前状态（v1.7.8）
+## 九、当前状态（v1.7.9）
 
-- ✅ APP 当前发布版：v1.7.8（versionCode 34）
+- ✅ APP 当前发布版：v1.7.9（versionCode 35）— **release keystore 签名**（不再是 debug 签名）
 - ✅ 锐捷/华为 VLAN 多行续行解析已修复
 - ✅ `--More--` 与提示符同行时检测已修复
 - ✅ 服务端 NOT_FOUND 容错已加（末尾斜杠、favicon、路径回显）
 - ⏳ 等待用户 FTP 上传 app.py 到服务器
+- ⚠️ 签名从 debug 变为 release：**老用户必须先卸载旧版再装新版**（签名不同无法覆盖安装）
 
 ## 十、用户偏好（重要！）
 
@@ -112,4 +128,5 @@ systemctl status switch-auth
 ## 十一、待办（TODO）
 
 - [ ] 服务端 app.py 修复部署（用户 FTP 上传中）
-- [ ] 未来考虑：release keystore 签名（目前是 debug 签名）
+- [x] release keystore 签名（v1.7.9 起生效）
+- [ ] 把 `keystore/switchquery-release.jks` + `keystore.properties` 备份到离线安全位置（网盘/U盘/密码管理器）
