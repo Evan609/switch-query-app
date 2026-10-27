@@ -25,6 +25,7 @@ local.properties
 *.jks
 *.keystore
 keystore.properties
+keystore/
 
 # APK build products (re-generated)
 *.apk
