@@ -122,6 +122,7 @@ systemctl status switch-auth
 ## 十、用户偏好（重要！）
 
 - **直接给文件和手动命令**，不要自动连接服务器（沙箱限制 + 用户方式不同）
+- **默认一律用 release 包**：编译用 `.\gradlew.bat assembleRelease`，产物取 `app/build/outputs/apk/release/app-release.apk`；不再默认用 debug 包（除非用户明确要求调试）
 - 每次发版必须：递增 versionCode/Name → 更新本文件 → 更新开发者文档 → 给 APK 链接 → git push
 - 部署用 FTP 上传 + 服务器本地 `systemctl restart switch-auth`
 
