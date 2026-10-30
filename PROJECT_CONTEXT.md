@@ -25,16 +25,25 @@
 
 | 依赖 | 版本 | 路径/验证 |
 |---|---|---|
-| JDK | 17.0.2 | `C:\Program Files\Java\jdk-17.0.2` |
+| JDK | **17.0.2（必须）** | `C:\Program Files\Java\jdk-17.0.2` |
 | Android SDK | 34 | 见 `local.properties`（换电脑需修改） |
 | Python | 3.7+ | 服务端开发 |
-| Gradle | 8.9（wrapper 自带） | 不需要全局安装 |
+| Gradle | 8.9（wrapper 自带） | 不需要全局安装，缓存在 `C:\Users\CATORA\.gradle\wrapper\dists\gradle-8.9-bin\` |
 | Git | 任意 | 仓库已推 GitHub |
+
+> ⚠️ **机器上装了 JDK 25（`C:\Program Files\Java\jdk-25.0.5.0.3`）且已是 PATH 默认 JDK。**
+> 本项目**禁止用 JDK 25 编译**：实测 `assembleRelease` 会在 `lintVitalAnalyzeRelease` 阶段失败
+> （`AndroidLintWorkAction > 25.0.5.0.3`），AGP 8.7.3 的 Lint 引擎无法解析该版本串。
+> 因此**每条编译命令都必须在前面显式设置 `JAVA_HOME` 指向 jdk-17.0.2**（见第四节）。
 
 ## 四、构建与发布流程
 
+> 🔴 **硬性要求：前两行设置 JAVA_HOME 不能省，也不能依赖系统默认 JDK。**
+> 系统默认已是 JDK 25，直接 `gradlew` 编译 release 必失败。
+
 ```powershell
 # 1. 编译（release 签名版）
+#    ← 这两行必须每次执行，且必须在 gradlew 之前
 $env:JAVA_HOME = "C:\Program Files\Java\jdk-17.0.2"
 $env:Path = "$env:JAVA_HOME\bin;$env:Path"
 .\gradlew.bat assembleRelease
@@ -52,6 +61,14 @@ Copy-Item app\build\outputs\apk\release\app-release.apk 网管家交换机信息
 # 6. 更新本文件和 开发者更新文档.md
 # 7. git add → commit → push
 ```
+
+### 编译报错对照
+
+| 报错 | 原因 | 处理 |
+|---|---|---|
+| `AndroidLintWorkAction > 25.0.5.0.3` | 用了系统默认 JDK 25 | 按上面设置 `JAVA_HOME` 为 jdk-17.0.2 后重试 |
+| `Unsupported class file major version 69` | Gradle 跑在 JDK 25 上 | 同上 |
+| `app-release-unsigned.apk` | 缺 `keystore.properties` 或 `.jks` | 从离线备份拷贝两个签名文件 |
 
 ### 签名密钥（严禁入库）
 
