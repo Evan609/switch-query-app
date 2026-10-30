@@ -1,0 +1,2 @@
+Current state: UP
+Line protocol state: UP

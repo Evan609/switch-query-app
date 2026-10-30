@@ -1,0 +1,4 @@
+Current Diagnostic Parameters:
+Temp(C) Voltage(V) Bias(mA) RX Power(dBm) TX Power(dBm)
+-13.60(OK)[C1/AP] -2.10
+-13.20(OK)[C2/AP] -2.30

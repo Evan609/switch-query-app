@@ -1,0 +1,8 @@
+GigabitEthernet1/0/24
+Current state: UP
+Line protocol state: UP
+Port link-type: trunk
+PVID: 1
+VLAN permitted: 20,23,120-139,2001-2020
+2301-2320
+2395

@@ -1,0 +1,3 @@
+GigabitEthernet0/0/1
+Current state: UP
+Line protocol state: UP

@@ -1,0 +1,2 @@
+    Input: 12 errors, 0 CRC, 0 frame, 0 overrun, 0 ignored
+   Output: 5 errors

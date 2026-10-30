@@ -1,0 +1,9 @@
+# Gradle / 构建产物
+.gradle/
+.kotlin/
+build/
+build-parity/
+
+# 对比输出（每次可重新生成）
+kotlin_out.txt
+java_out.txt

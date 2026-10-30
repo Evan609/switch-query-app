@@ -1,0 +1,6 @@
+Interface                Switchport  Mode    Access  Native  Protected  VLAN lists
+AggregatePort 20         enabled     TRUNK
+1      1      Disabled  20,23,120-139
+2001-2020,2301-2320
+2395
+JiLin_HeNanJie_JieDian#

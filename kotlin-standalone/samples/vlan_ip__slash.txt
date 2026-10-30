@@ -1,0 +1,2 @@
+Vlanif100
+  IP address: 10.1.1.1/24
