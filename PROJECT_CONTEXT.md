@@ -177,7 +177,8 @@ jvmToolchain 17），把解析层 `ResultRefiner` 与四个数据模型 1:1 重�
   只能在 `.\gradlew.bat -p kotlin-standalone ...` 下单独构建，不影响 `assembleRelease` 的体积与签名。
 - **等价性已实测**：12 份真实厂商回显样例（覆盖 6 类解析）经 Java 原版与 Kotlin 版各跑一遍，
   输出文件 SHA256 完全一致（`C8CA9345…96428`）。
-- 运行方式与移植注意点见 `kotlin-standalone/README.md`（含 `run` / `demo` / `parity` 三种模式）。
+- 运行方式与移植注意点见 `kotlin-standalone/README.md`；整体框架、逐文件职责与逐函数说明见
+  `kotlin-standalone/架构与代码注释.md`（两份独立文档，均不参与 APK 构建）。
 - 结论未变：主项目继续纯 Java，本目录仅作参考实现；若将来决定迁移，可直接以此为起点。
 
 ### 2026-10-30 决定：构建必须用 JDK 17

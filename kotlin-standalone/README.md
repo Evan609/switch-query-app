@@ -30,8 +30,12 @@ kotlin-standalone/
 │   ├── model/Models.kt            # SwitchType / SwitchDevice / Project / PortDescriptor
 │   └── refiner/ResultRefiner.kt   # 解析核心（对应 Java 版 ResultRefiner）
 ├── tools/ParityDump.java          # 对比基准：编译 Java 原版，输出同样格式的文本
-└── samples/*.txt                  # 12 份真实厂商回显样例（UTF-8 无 BOM）
+├── samples/*.txt                  # 12 份真实厂商回显样例（UTF-8 无 BOM）
+└── 架构与代码注释.md               # 整体框架 + 每个文件的职责 + 逐函数说明
 ```
+
+> 想先看代码结构，直接读 [`架构与代码注释.md`](架构与代码注释.md)；只想跑起来，看下文。
+
 
 ## 运行方式
 
