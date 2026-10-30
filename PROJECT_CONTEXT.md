@@ -117,6 +117,8 @@ systemctl status switch-auth
 
 ## 八、核心文件索引
 
+> 完整的目录/文件地图（每个文件一行说明）见 **`项目文件与目录说明.md`**。
+
 | 文件 | 作用 | 改了容易出问题 |
 |---|---|---|
 | `app/src/.../connection/ConnectionManager.java` | SSH 会话管理、命令发送 | ⚠️ 命令白名单在此 |
