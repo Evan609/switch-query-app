@@ -150,3 +150,26 @@ systemctl status switch-auth
 - [ ] 服务端 app.py 修复部署（用户 FTP 上传中）
 - [x] release keystore 签名（v1.7.9 起生效）
 - [ ] 把 `keystore/switchquery-release.jks` + `keystore.properties` 备份到离线安全位置（网盘/U盘/密码管理器）
+
+## 十二、技术选型决策
+
+### 2026-10-30 决定：APP 保持纯 Java，不引入 Kotlin
+
+**结论**：继续用 Java 17，不加 Kotlin 插件、不加 stdlib、不迁移现有代码。
+
+**理由**
+- 代码已稳定（33 文件 / 4,911 行），且解析与连接逻辑都要靠真实交换机验证，全量改写回归成本高
+- Kotlin stdlib 在 `minifyEnabled false` 下无法裁剪，APK 会从 4.92 MB 涨到 6.5 MB 左右，抵消刚完成的体积优化
+- Java 17 已有 record / switch 表达式 / var / 文本块，与 Kotlin 的差距在空安全和协程，而这两项对本项目收益有限
+
+**重新评估的条件**（满足两条以上再谈）
+1. 要重写连接层或加批量并发查询、多协议（SNMP 等）
+2. 代码量翻倍到 1 万行以上
+3. 团队引入新成员且更熟 Kotlin
+4. 体积不再敏感（如仅企业内部分发）
+
+### 2026-10-30 决定：构建必须用 JDK 17
+
+本机 PATH 默认已是 JDK 25，用 25 编译 release 会在 `lintVitalAnalyzeRelease` 失败
+（`AndroidLintWorkAction > 25.0.5.0.3`）。因此所有编译命令必须以设置 `JAVA_HOME` 开头（见第四节）。
+JDK / Gradle / AGP 升级评估结论：收益为零、成本为一次构建系统迁移，暂不升级。
